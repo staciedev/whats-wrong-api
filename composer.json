@@ -1,0 +1,6 @@
+{
+    "require": {
+        "mongodb/mongodb": "^1.1",
+        "altorouter/altorouter": "^1.2"
+    }
+}
