@@ -1,6 +1,7 @@
 {
     "require": {
         "mongodb/mongodb": "^1.1",
-        "altorouter/altorouter": "^1.2"
+        "altorouter/altorouter": "^1.2",
+        "firebase/php-jwt": "dev-master"
     }
 }
