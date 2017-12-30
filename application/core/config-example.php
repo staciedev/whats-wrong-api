@@ -6,12 +6,12 @@ class Config
 {	
 	// configurations
 	
-	public static $start_url = '/whats-wrong-api';
+	const START_URL = '/whats-wrong-api';
 	
-	public static $db_name = 'whatswrong';
+	const DB_NAME = 'whatswrong';
 	
-	public static $db_host = 'mongodb://localhost:27017';
+	const DB_HOST = 'mongodb://localhost:27017';
 	
-	public static $content_dir = '/content';	
-	
+	const CONTENT_DIR = '/content';	
+		
 }

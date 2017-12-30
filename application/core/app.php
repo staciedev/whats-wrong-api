@@ -20,12 +20,12 @@ class App
 		$protocol = $_SERVER['SERVER_PROTOCOL'];
 		$protocol = explode( '/', $protocol );
 		$protocol = $protocol[0];
-		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'] . '/' . self::$config::$start_url;
+		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'] . '/' . self::$config::START_URL;
 		
 		self::$basedir = dirname(__FILE__).'/../..';
 		
 		self::$router = new \AltoRouter();
-		self::$router->setBasePath( self::$config::$start_url );
+		self::$router->setBasePath( self::$config::START_URL );
 		
 		self::db_connect();
 	}
@@ -33,8 +33,8 @@ class App
 	
 	// initializing db connection
 	static function db_connect() {
-		$client = new \MongoDB\Client( self::$config::$db_host );
-		$db_name = self::$config::$db_name;
+		$client = new \MongoDB\Client( self::$config::DB_HOST );
+		$db_name = self::$config::DB_NAME;
 		self::$db = $client->$db_name;					
 	}
 	
