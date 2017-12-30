@@ -11,23 +11,28 @@ class App
 	public static $db = null;
 	public static $router = null;
 	public static $complete_url;
-	public static $basedir;
-	
+	public static $basedir;	
+		
 	
 	static function init() {
 		self::$config = new Config;
 		
+		// application url
 		$protocol = $_SERVER['SERVER_PROTOCOL'];
 		$protocol = explode( '/', $protocol );
 		$protocol = $protocol[0];
 		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'] . '/' . self::$config::START_URL;
 		
+		// application base directory
 		self::$basedir = dirname(__FILE__).'/../..';
 		
+		// routing
 		self::$router = new \AltoRouter();
 		self::$router->setBasePath( self::$config::START_URL );
 		
-		self::db_connect();
+		// database connection
+		self::db_connect();		
+		
 	}
 	
 	
