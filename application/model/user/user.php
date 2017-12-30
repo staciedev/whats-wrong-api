@@ -52,7 +52,7 @@ class User {
         ]
     ];
 		
-		$secret_key = App::$config::JWT_SECRET_KEY;
+		$secret_key = base64_decode( App::$config::JWT_SECRET_KEY );
 		
 		$jwt = JWT::encode(
         $data,
