@@ -5,12 +5,13 @@ class Authorization {
 	
 	private $mapper;
 	private $user;
-	private $status; // operation status: AUTHORIZED|NO_USER|WRONG_PASS|NOT_VERIFIED
+	private $status; // operation status: AUTHORIZED|NO_USER|WRONG_PASS|TOKEN_INVALID|NOT_VERIFIED
 	
 	const AUTHORIZED = 1;
 	const NO_USER = 2;
 	const WRONG_PASS = 3;
-	const NOT_VERIFIED = 4;
+	const TOKEN_INVALID = 4;
+	const NOT_VERIFIED = 5;
 	
 	
 	public function __construct() {
@@ -45,10 +46,19 @@ class Authorization {
 	}
 	
 	
-	public function check_user_pass( User $user, string $password ): bool 
-	{
+	public function login_with_token( string $token )
+	{		
+		$this->user->populate_from_token( $token );			
+		error_log( print_r($this->user, true));
+		// invalid token, user not set
+		if( !$this->user->get__id() ) {
+			$this->status = self::TOKEN_INVALID;			
+			return;
+		}
 		
-	}
+		$this->status = self::AUTHORIZED;
+		
+	}	
 		
 	
 	public function get_user(): User 

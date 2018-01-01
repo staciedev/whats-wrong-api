@@ -55,4 +55,41 @@ class ControllerUser extends Controller {
 		
 	}	
 	
+	
+	function action_test_token()
+	{
+		$result = [];
+		
+		$authorization = new Authorization();			
+		
+		if( !empty( $_POST['user_token'] ) ) {
+			
+			$authorization->login_with_token( $_POST['user_token'] );
+			
+			switch ( $authorization->get_status() ) {
+				case Authorization::AUTHORIZED:
+					header('HTTP/1.1 200 OK');
+				  header("Status: 200 OK");
+					$result = [
+						'messageKey' => 'tokenValid'
+						];					
+					break;
+					
+				default:
+					header('HTTP/1.1 401 Unauthorized');
+				  header("Status: 401 Unauthorized");
+					$result = [
+						'messageKey' => 'tokenInvalid'
+						];
+					break;										
+				
+			}		
+			
+		}
+		
+		echo json_encode( $result );		
+		
+	}
+	
+	
 }

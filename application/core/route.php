@@ -12,7 +12,8 @@ class Route {
 		// TODO: make an array of modules?
 		
 		// site routes
-		App::$router->map( 'POST', '/user/login', array( 'm' => 'user', 'c' => 'user', 'a' => 'login' ), 'log_user_in' ); # authorize user	
+		App::$router->map( 'POST', '/user/login', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'login' ), 'log_user_in' ); # authorize user	
+		App::$router->map( 'POST', '/user/token-test', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'test_token' ), 'test_user_token' ); # TODO: a test route, should be deleted
 		
 		
 		$match = App::$router->match();
@@ -26,14 +27,15 @@ class Route {
 			Route::error404();
 			return;
 		}
-
-		// include all files in the module folder
-				
-		$module_dir = "application/model/" . $module_name;
 		
-		if( file_exists( $module_dir ) && is_dir( $module_dir ) ) {
-			self::_require_all( $module_dir );
-		}
+		
+		// load all modules specified for this route 
+		if( !empty( $match['target']['m'] ) && is_array( $match['target']['m'] ) ) {
+			foreach ( $match['target']['m'] as $module ) {
+				App::load_module( $module );
+			}
+		}	
+		
 
 		// include controller file 
 		$controller_file = strtolower( 'controller-' . $controller_name ) . '.php';
@@ -65,25 +67,6 @@ class Route {
 		}
 	
 	}
-	
-	
-	static function  _require_all( $dir, $depth = 0 ) 
-	{
-		$max_scan_depth = 10;
-  	if ( $depth > $max_scan_depth ) {
-    	return;
-	  }
-    // require all php files
-    $scan = glob( "$dir/*" );
-    foreach ( $scan as $path ) {
-      if ( preg_match( '/\.php$/', $path ) ) {
-        require_once $path;
-      }
-      elseif ( is_dir( $path ) ) {
-        self::_require_all( $path, $depth + 1 );
-      }
-  	}
-  }
 	
 	
 	static function error404()

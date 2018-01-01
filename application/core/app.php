@@ -11,7 +11,7 @@ class App
 	public static $db = null;
 	public static $router = null;
 	public static $complete_url;
-	public static $basedir;	
+	public static $basedir;		
 		
 	
 	static function init() {
@@ -33,6 +33,37 @@ class App
 		// database connection
 		self::db_connect();		
 		
+	}
+	
+	// includes all files in module folder recursively
+	private static function  _require_all( $dir, $depth = 0 ) 
+	{
+		$max_scan_depth = 10;
+  	if ( $depth > $max_scan_depth ) {
+    	return;
+	  }
+    // require all php files
+    $scan = glob( "$dir/*" );
+    foreach ( $scan as $path ) {
+      if ( preg_match( '/\.php$/', $path ) ) {
+        require_once $path;
+      }
+      elseif ( is_dir( $path ) ) {
+        self::_require_all( $path, $depth + 1 );
+      }
+  	}
+  }
+	
+	
+	// loads application module.
+	// One module is one folder in application/model
+	static function load_module( $module_name )
+	{
+		$module_dir = "application/model/" . $module_name;
+		
+		if( file_exists( $module_dir ) && is_dir( $module_dir ) ) {
+			self::_require_all( $module_dir );
+		}
 	}
 	
 	

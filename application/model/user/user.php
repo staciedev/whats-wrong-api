@@ -5,11 +5,16 @@ use Firebase\JWT\JWT;
 
 class User {	
 	
-	private $id = ''; 
+	private $_id = ''; 
 	private $email = '';
 	private $passwd = '';
 	private $verified = false;
 	private $token = '';
+	
+	private static $fields_for_token = [
+		'_id',
+		'email'
+	];
 	
 	
 	public function encode_password( string $password ): string 
@@ -31,13 +36,26 @@ class User {
 		return $this->token;
 	}	
 	
+	
+	public function reset_token() 
+	{
+		$this->token = $this->generate_token();
+	}
+		
+	
 	public function generate_token(): string 
 	{		
 		$token_id    = base64_encode( random_bytes(32) );
     $issued_at   = time();
     $not_before  = $issued_at + 10; // Adding 10 seconds
-    $expire     = $not_before + 3600 * 3; // Adding 3 hours
-    $server_name = App::$complete_url; // Server name will be a domain name    
+    $expire     = $not_before + 3600 * 3; // Adding 3 hours TODO: move this to config
+    $server_name = App::$complete_url; // Server name will be a domain name 
+		
+		$user_data = [];
+		foreach ( self::$fields_for_token as $field ) {
+			if( isset( $this->$field ) )
+				$user_data[$field] = $this->$field;
+		}   
     
     // Create the token as an array     
     $data = [
@@ -46,10 +64,8 @@ class User {
         'iss'  => $server_name, // Issuer
         'nbf'  => $not_before, // Not before
         'exp'  => $expire, // Expire
-        'data' => [
-            'userId'   => $this->id, // User ID from the users table
-            'userEmail' => $this->email, // User email
-        ]
+				
+        'data' => $user_data, // All user properties 
     ];
 		
 		$secret_key = base64_decode( App::$config::JWT_SECRET_KEY );
@@ -61,12 +77,37 @@ class User {
         );        
     
 		return $jwt;
+	}	
+	
+		
+	public function populate_from_token( string $token )
+	{
+		$secret_key = base64_decode( App::$config::JWT_SECRET_KEY );
+		
+		try {
+			$token = JWT::decode( $token, $secret_key, array( 'HS512' ) );
+			if( !empty( $token->data ) ) {
+				$this->populate( (array) $token->data );
+			}
+				
+		}
+		catch( \Exception $e ) {
+			error_log( 'Token couldn\'t be decoded.' );
+		}	  
+	  
 	}
 	
 	
-	public function reset_token() 
+	// TODO: this function is a duplicate of the one in DataMapper
+	// think of deleting it in DataMapper and moving it to new Domain object class extended by User
+	public function populate( array $parameters )
 	{
-		$this->token = $this->generate_token();
+		foreach ( $parameters as $key => $value ) {			
+    	$method = 'set_' . $key;			
+      if ( method_exists( $this, $method ) ) {				
+        $this->$method( $value );
+      }
+    }
 	}
 	
 	
@@ -75,7 +116,7 @@ class User {
 	*/
 	public function get__id(): string
 	{
-		return $this->id;
+		return $this->_id;
 	}
 	public function get_email(): string 
 	{
@@ -97,7 +138,7 @@ class User {
 	*/
 	public function set__id( string $id )
 	{		
-		$this->id = $id;
+		$this->_id = $id;
 	}
 	public function set_email( string $email )
 	{
