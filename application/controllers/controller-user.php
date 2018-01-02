@@ -14,52 +14,40 @@ class ControllerUser extends Controller {
 	
 	
 	function action_login()
-	{
-		$result = [];
-		
-		$authorization = new Authorization();			
-		
-		if( !empty( $_POST['email'] ) && !empty( $_POST['password'] ) ) {			
-			
-			$authorization->login_with_password( $_POST['email'], $_POST['password'] );
-			
-			switch ( $authorization->get_status() ) {
-				case Authorization::AUTHORIZED:
-					header('HTTP/1.1 200 OK');
-				  header("Status: 200 OK");
-					$result = [
-						'token' => $authorization->get_user()->get_token()
-						];					
-					break;
-					
-				case Authorization::NO_USER:
-				case Authorization::WRONG_PASS:
-					header('HTTP/1.1 401 Unauthorized');
-				  header("Status: 401 Unauthorized");
-					$result = [
-						'messageKey' => 'loginFailed'
-						];
-					break;
-				
-				case Authorization::NOT_CONFIRMED:
-					header('HTTP/1.1 401 Unauthorized');
-				  header("Status: 401 Unauthorized");
-					$result = [
-						'messageKey' => 'mailNotConfirmed'
-						];							
-				
-			}			
-			
-		}	
-		
-		echo json_encode( $result );		
-		
+	{				
+		if( !empty( $_POST['email'] ) && !empty( $_POST['password'] ) )						
+			$this->inneraction_login( $_POST['email'], $_POST['password'] );		
 	}	
 	
 	
+	// in a separate function to make it independent from data source
+	private function inneraction_login( string $email, string $password )
+	{		
+		
+		if( empty( $email ) || empty( $password ) )
+			$this->send_response( '400 Bad Request', [ 'messageKey' => 'missingRequiredData' ] );	
+			
+		$authorization = new Authorization();
+		
+		$authorization->login_with_password( $_POST['email'], $_POST['password'] );
+		
+		switch ( $authorization->get_status() ) {
+			case Authorization::AUTHORIZED:					
+				$this->send_response( '200 OK', [ 'token' => $authorization->get_user()->get_token() ] );					
+				
+			case Authorization::NO_USER:
+			case Authorization::WRONG_PASS:					
+				$this->send_response( '401 Unauthorized', [ 'messageKey' => 'loginFailed' ] );					
+			
+			case Authorization::NOT_CONFIRMED:
+				$this->send_response( '401 Unauthorized', [ 'messageKey' => 'mailNotConfirmed' ] );	
+								
+		}	
+	}
+	
+	
 	function action_test_token()
-	{
-		$result = [];
+	{		
 		
 		$authorization = new Authorization();			
 		
@@ -69,33 +57,19 @@ class ControllerUser extends Controller {
 			
 			switch ( $authorization->get_status() ) {
 				case Authorization::AUTHORIZED:
-					header('HTTP/1.1 200 OK');
-				  header("Status: 200 OK");
-					$result = [
-						'messageKey' => 'tokenValid'
-						];					
-					break;
+					$this->send_response( '200 OK', [ 'messageKey' => 'tokenValid' ] );					
 					
 				default:
-					header('HTTP/1.1 401 Unauthorized');
-				  header("Status: 401 Unauthorized");
-					$result = [
-						'messageKey' => 'tokenInvalid'
-						];
-					break;										
-				
+					$this->send_response( '401 Unauthorized', [ 'messageKey' => 'tokenInvalid' ] );					
 			}		
 			
-		}
-		
-		echo json_encode( $result );		
+		}			
 		
 	}
 	
 	
 	public function action_register()
-	{
-		$result = [];
+	{		
 		
 		$registration = new Registration();
 		
@@ -105,63 +79,33 @@ class ControllerUser extends Controller {
 			
 			switch ( $registration->get_status() ) {
 				case Registration::REGISTERED:
-					header('HTTP/1.1 200 OK');
-				  header("Status: 200 OK");
-					$result = [
-						'_id' => $registration->get_user()->get__id()
-						];					
-					break;
+					$this->send_response( '200 OK', [ '_id' => $registration->get_user()->get__id() ] );					
 					
 				case Registration::EMAIL_EXISTS:
-					header('HTTP/1.1 400 User exists');
-					header("Status: 400 User exists");
-					$result = [
-						'messageKey' => 'emailExists'
-						];
-					break;
+					$this->send_response( '400 User exists', [ 'messageKey' => 'emailExists' ] );
 					
 				case Registration::EMAIL_INVALID:
 				case Registration::PASSWORD_INVALID:
-					header('HTTP/1.1 400 Invalid data');
-					header("Status: 400 Invalid data");
-					$result = [
-						'messageKey' => 'invalidData'
-						];
-					break;
+					$this->send_response( '400 Invalid data', [ 'messageKey' => 'invalidData' ] );
 					
 				case Registration::TOKEN_NOT_GENERATED:
-					header('HTTP/1.1 400 Confirmation token not created');
-					header("Status: 400 Confirmation token not created");
-					$result = [
-						'messageKey' => 'confirmationTokenNotCreated'
-						];
-					break;
+					$this->send_response( '400 Confirmation token not created', [ 'messageKey' => 'confirmationTokenNotCreated' ] );					
 					
 				case Registration::EMAIL_NOT_SENT:	
-					header('HTTP/1.1 400 Failed to send email');
-					header("Status: 400 Failed to send email");
-					$result = [
-						'messageKey' => 'emailNotSent'
-						];
-					break;	
+					$this->send_response( '400 Failed to send email', [ 'messageKey' => 'emailNotSent' ] );					
 					
 				case Registration::DATABASE_ERROR:		
-					header('HTTP/1.1 400 Failed to create database entry');
-					header("Status: 400 Failed to create database entry");
-					$result = [
-						'messageKey' => 'entryNotCreated'
-						];
-					break;	
+					$this->send_response( '400 Failed to create database entry', [ 'messageKey' => 'entryNotCreated' ] );
 				
 			}
 			
-		}
+		}		
 		
-		echo json_encode( $result );
 	}
 	
 	
-	public function action_confirm( $params ) {
+	public function action_confirm( array $params ) 
+	{
 		$result = [];
 		
 		if( !empty( $params['conf_token'] ) ) {
@@ -170,36 +114,24 @@ class ControllerUser extends Controller {
 			
 			$registration->confirm_user( $params['conf_token'] );
 			
-			switch ( $registration->get_status() ) {
+			switch ( $registration->get_status() ) {					
 				case Registration::REGISTERED:
-					header('HTTP/1.1 200 OK');
-				  header("Status: 200 OK");
-					$result = [						
-						];	
-					// TODO: make it possible to login here if necessary				
-					break;
+				// TODO: make it possible to login here if necessary
+				if( App::$config::LOGIN_AFTER_CONFIRMATION ) {
+					$this->send_response( '200 OK', [ 'token' => $registration->get_user()->get_token() ] );
+				}
+				else $this->send_response( '200 OK', [ 'messageKey' => 'emailConfirmed' ] );					
 					
 				case Registration::DATABASE_ERROR:
-					header('HTTP/1.1 400 Failed to update database entry');
-					header("Status: 400 Failed to update database entry");
-					$result = [
-						'messageKey' => 'entryNotUpdated'
-						];
-					break;
+					$this->send_response( '400 Failed to update database entry', [ 'messageKey' => 'entryNotUpdated' ] );					
 					
 				case Registration::TOKEN_NOT_FOUND:
-					header('HTTP/1.1 400 Invalid confirmation token');
-					header("Status: 400 Invalid confirmation token");
-					$result = [
-						'messageKey' => 'confirmationTokenInvalid'
-						];
-					break;
+					$this->send_response( '400 Invalid confirmation token', [ 'messageKey' => 'confirmationTokenInvalid' ] );
 
 			}
 			
-		}	
-		
-		echo json_encode( $result );		
+		}			
+			
 	}
 	
 	
