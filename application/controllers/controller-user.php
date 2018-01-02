@@ -2,6 +2,7 @@
 
 namespace Whatswrong;
 use Whatswrong\User\Authorization;
+use Whatswrong\User\Registration;
 
 
 class ControllerUser extends Controller {
@@ -89,6 +90,58 @@ class ControllerUser extends Controller {
 		
 		echo json_encode( $result );		
 		
+	}
+	
+	
+	public function action_register()
+	{
+		$result = [];
+		
+		$registration = new Registration();
+		
+		if( !empty( $_POST['email'] ) && !empty( $_POST['password'] ) ) {	
+			
+			$registration->register( $_POST['email'], $_POST['password'] );
+			
+			switch ( $registration->get_status() ) {
+				case Registration::REGISTERED:
+					header('HTTP/1.1 200 OK');
+				  header("Status: 200 OK");
+					$result = [
+						'_id' => $registration->get_user()->get__id()
+						];					
+					break;
+					
+				case Registration::EMAIL_EXISTS:
+					header('HTTP/1.1 400 User exists');
+					header("Status: 400 User exists");
+					$result = [
+						'messageKey' => 'emailExists'
+						];
+					break;
+					
+				case Registration::EMAIL_INVALID:
+				case Registration::PASSWORD_INVALID:
+					header('HTTP/1.1 400 Invalid data');
+					header("Status: 400 Invalid data");
+					$result = [
+						'messageKey' => 'invalidData'
+						];
+					break;
+					
+				case Registration::TOKEN_NOT_GENERATED:
+					header('HTTP/1.1 400 Confirmation token not created');
+					header("Status: 400 Confirmation token not created");
+					$result = [
+						'messageKey' => 'confirmationTokenNotCreated'
+						];
+					break;				
+				
+			}
+			
+		}
+		
+		echo json_encode( $result );
 	}
 	
 	

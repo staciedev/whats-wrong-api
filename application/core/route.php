@@ -14,6 +14,7 @@ class Route {
 		// site routes
 		App::$router->map( 'POST', '/user/login', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'login' ), 'log_user_in' ); # authorize user	
 		App::$router->map( 'POST', '/user/token-test', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'test_token' ), 'test_user_token' ); # TODO: a test route, should be deleted
+		App::$router->map( 'POST', '/user/register', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'register' ), 'register_user' ); # register user	
 		
 		
 		$match = App::$router->match();

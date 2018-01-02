@@ -10,6 +10,7 @@ class User {
 	private $passwd = '';
 	private $verified = false;
 	private $token = '';
+	private $confirmation_token = '';
 	
 	private static $fields_for_token = [
 		'_id',
@@ -131,6 +132,10 @@ class User {
 		if( $this->verified === true ) return true;
 		return false;
 	}
+	public function get_confirmation_token(): string 
+	{
+		return $this->confirmation_token;
+	}
 	
 	
 	/*
@@ -144,13 +149,20 @@ class User {
 	{
 		$this->email = $email;
 	}
-	public function set_passwd( string $passwd )
+	public function set_passwd( string $passwd, bool $encode = false )
 	{
-		$this->passwd = $passwd;
+		if( $encode )
+			$this->passwd = $this->encode_password( $passwd );
+		else 
+			$this->passwd = $passwd;
 	}
 	public function set_verified( bool $verified )
 	{
 		$this->verified = $verified;
+	}
+	public function set_confirmation_token( string $confirmation_token )
+	{
+		$this->confirmation_token = $confirmation_token;
 	}
 	
 }
