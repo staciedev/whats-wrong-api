@@ -41,11 +41,11 @@ class ControllerUser extends Controller {
 						];
 					break;
 				
-				case Authorization::NOT_VERIFIED:
+				case Authorization::NOT_CONFIRMED:
 					header('HTTP/1.1 401 Unauthorized');
 				  header("Status: 401 Unauthorized");
 					$result = [
-						'messageKey' => 'mailNotVerified'
+						'messageKey' => 'mailNotConfirmed'
 						];							
 				
 			}			
@@ -145,7 +145,7 @@ class ControllerUser extends Controller {
 						];
 					break;	
 					
-				case Registration::ENTRY_NOT_CREATED:		
+				case Registration::DATABASE_ERROR:		
 					header('HTTP/1.1 400 Failed to create database entry');
 					header("Status: 400 Failed to create database entry");
 					$result = [
@@ -158,6 +158,48 @@ class ControllerUser extends Controller {
 		}
 		
 		echo json_encode( $result );
+	}
+	
+	
+	public function action_confirm( $params ) {
+		$result = [];
+		
+		if( !empty( $params['conf_token'] ) ) {
+			
+			$registration = new Registration();
+			
+			$registration->confirm_user( $params['conf_token'] );
+			
+			switch ( $registration->get_status() ) {
+				case Registration::REGISTERED:
+					header('HTTP/1.1 200 OK');
+				  header("Status: 200 OK");
+					$result = [						
+						];	
+					// TODO: make it possible to login here if necessary				
+					break;
+					
+				case Registration::DATABASE_ERROR:
+					header('HTTP/1.1 400 Failed to update database entry');
+					header("Status: 400 Failed to update database entry");
+					$result = [
+						'messageKey' => 'entryNotUpdated'
+						];
+					break;
+					
+				case Registration::TOKEN_NOT_FOUND:
+					header('HTTP/1.1 400 Invalid confirmation token');
+					header("Status: 400 Invalid confirmation token");
+					$result = [
+						'messageKey' => 'confirmationTokenInvalid'
+						];
+					break;
+
+			}
+			
+		}	
+		
+		echo json_encode( $result );		
 	}
 	
 	

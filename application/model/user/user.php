@@ -8,7 +8,7 @@ class User {
 	private $_id = ''; 
 	private $email = '';
 	private $passwd = '';
-	private $verified = false;
+	private $confirmed = false;
 	private $token = '';
 	private $confirmation_token = '';
 	
@@ -112,6 +112,16 @@ class User {
 	}
 	
 	
+	public function confirm()
+	{
+		if( !$this->confirmed )
+		{
+			$this->confirmed = true;
+			$this->confirmation_token = '';
+		}
+	}
+	
+	
 	/*
 	* Getters
 	*/
@@ -127,9 +137,9 @@ class User {
 	{
 		return $this->passwd;
 	}
-	public function is_verified(): bool
+	public function is_confirmed(): bool
 	{
-		if( $this->verified === true ) return true;
+		if( $this->confirmed === true ) return true;
 		return false;
 	}
 	public function get_confirmation_token(): string 
@@ -156,9 +166,9 @@ class User {
 		else 
 			$this->passwd = $passwd;
 	}
-	public function set_verified( bool $verified )
+	public function set_confirmed( bool $confirmed )
 	{
-		$this->verified = $verified;
+		$this->confirmed = $confirmed;
 	}
 	public function set_confirmation_token( string $confirmation_token )
 	{

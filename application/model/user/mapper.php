@@ -4,18 +4,12 @@ namespace Whatswrong\User;
 
 use Whatswrong\DataMapper;
 use Whatswrong\App;
+use MongoDB\BSON\ObjectId;
 
 class UserMapper extends DataMapper {
 	
 	private $collection_name = 'users';
 	
-	private $properties_to_store = [		
-		'email',
-		'passwd',
-		'verified',
-		'confirmation_token'
-	];
-		
 		
 	public function fetch_by_email( User $user, string $email ) 
 	{		
@@ -53,16 +47,27 @@ class UserMapper extends DataMapper {
 	}
 	
 	
+	private function user_to_db_object( User $user )
+	{
+		$data = [];
+		
+		if( !empty( $user->get__id() ) )
+		$data['_id'] = new ObjectId( $user->get__id() );
+			
+		$data['email'] = $user->get_email();
+		$data['passwd'] = $user->get_passwd();
+		$data['confirmed'] = $user->is_confirmed();	
+		
+		if( !empty( $user->get_confirmation_token() ) ) 
+		$data['confirmation_token'] = $user->get_confirmation_token();
+		
+		return $data;
+	}
+	
+	
 	public function create( User $user ): bool
 	{
-		$data_to_insert = [];
-		
-		foreach ( $this->properties_to_store as $property ) {
-			$method = 'get_' . $property;		
-			if ( method_exists( $user, $method ) ) {				
-        $data_to_insert[$property] = $user->$method();
-      }	
-		}
+		$data_to_insert = $this->user_to_db_object( $user );	
 		
 		try {			
 			$insert_result = App::$db->{$this->collection_name}->insertOne( $data_to_insert );			
@@ -75,6 +80,23 @@ class UserMapper extends DataMapper {
 		$inserted_id = $insert_result->getInsertedId();		
 		$user->set__id( $inserted_id );
 		return true;
+	}
+	
+	
+	// replaces the complete object, all properties not specified will be deleted
+	public function replace( User $user ): int
+	{
+		$data_to_update = $this->user_to_db_object( $user );
+		
+		try {			
+			$update_result = App::$db->{$this->collection_name}->replaceOne( [ '_id' => new ObjectId( $user->get__id() ) ], $data_to_update );			
+		}
+		catch ( \Exception $e ) { 
+			error_log( $e->getMessage() );
+			return 0; 				
+		}
+		
+		return $update_result->getModifiedCount();
 	}
 	
 	

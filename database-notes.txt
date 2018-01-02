@@ -6,7 +6,7 @@ Collections
 _id
 username?
 passwd (hash)
-verified
+confirmed
 role
 expert_in_domains
 last_active

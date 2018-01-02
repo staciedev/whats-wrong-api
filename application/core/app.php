@@ -10,7 +10,8 @@ class App
 	
 	public static $db = null;
 	public static $router = null;
-	public static $complete_url;
+	public static $base_url; 
+	public static $complete_url; // may include subdirectories, e.g. on localhost
 	public static $basedir;		
 		
 	
@@ -21,7 +22,8 @@ class App
 		$protocol = $_SERVER['SERVER_PROTOCOL'];
 		$protocol = explode( '/', $protocol );
 		$protocol = $protocol[0];
-		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'];
+		self::$base_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'];
+		self::$complete_url = self::$base_url;
 		if( !empty( self::$config::START_URL ) ) 
 			self::$complete_url .= '/' . trim( self::$config::START_URL, '/' );
 		

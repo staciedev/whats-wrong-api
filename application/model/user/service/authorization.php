@@ -5,13 +5,13 @@ class Authorization {
 	
 	private $mapper;
 	private $user;
-	private $status; // operation status: AUTHORIZED|NO_USER|WRONG_PASS|TOKEN_INVALID|NOT_VERIFIED
+	private $status; // operation status: AUTHORIZED|NO_USER|WRONG_PASS|TOKEN_INVALID|NOT_CONFIRMED
 	
 	const AUTHORIZED = 1;
 	const NO_USER = 2;
 	const WRONG_PASS = 3;
 	const TOKEN_INVALID = 4;
-	const NOT_VERIFIED = 5;
+	const NOT_CONFIRMED = 5;
 	
 	
 	public function __construct() {
@@ -35,9 +35,9 @@ class Authorization {
 			$this->status = self::WRONG_PASS;			
 			return;
 		}
-		// user email not verified 
-		if( !$this->user->is_verified() ) {
-			$this->status = self::NOT_VERIFIED;			
+		// user email not confirmed 
+		if( !$this->user->is_confirmed() ) {
+			$this->status = self::NOT_CONFIRMED;			
 			return;
 		}
 		

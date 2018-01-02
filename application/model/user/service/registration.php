@@ -15,7 +15,8 @@ class Registration {
 	const PASSWORD_INVALID = 4;
 	const TOKEN_NOT_GENERATED = 5;		
 	const EMAIL_NOT_SENT = 6;
-	const ENTRY_NOT_CREATED = 7;	
+	const DATABASE_ERROR = 7;	
+	const TOKEN_NOT_FOUND = 8;
 	
 	
 	public function __construct() {
@@ -70,12 +71,31 @@ class Registration {
 		// }
 		
 		if( !$this->mapper->create( $this->user ) ) {
-			$this->status = self::ENTRY_NOT_CREATED;
+			$this->status = self::DATABASE_ERROR;
 			return;
 		}
 		
 		$this->status = self::REGISTERED;		
 		
+	}
+	
+	
+	public function confirm_user( string $token )
+	{
+		$this->mapper->fetch_by_confirmation( $this->user, $token );
+		
+		if( $this->user->get__id() ) {
+			$this->user->confirm();
+			
+			if( $this->mapper->replace( $this->user ) ) 
+				$this->status = self::REGISTERED;			
+			else 
+				$this->status = self::DATABASE_ERROR;			
+		}
+		else {
+			$this->status = self::TOKEN_NOT_FOUND;
+		}		
+			
 	}
 	
 	
@@ -145,8 +165,9 @@ class Registration {
 		$conf_token = $this->user->get_confirmation_token();
 		
 		if( $email && $conf_token ) {
-			$link = App::$complete_url . '/user/confirm/' . $conf_token;
-			$message = sprintf( "To confirm your email address please follow this link:\n%s", $link );			
+			$link = App::$base_url . App::$router->generate( 'confirm_email', [ 'conf_token' => $conf_token ] );			
+			$message = sprintf( "To confirm your email address please follow this link:\n%s", $link );	
+			error_log( $message ); // TODO: debugging, remove this line
 			return mail ( $email , 'Confirm your email on WhatsWrong project', $message );
 		}
 		return false;
