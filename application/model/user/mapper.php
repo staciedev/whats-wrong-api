@@ -53,7 +53,7 @@ class UserMapper extends DataMapper {
 	}
 	
 	
-	public function create( User $user )
+	public function create( User $user ): bool
 	{
 		$data_to_insert = [];
 		
@@ -69,11 +69,12 @@ class UserMapper extends DataMapper {
 		}
 		catch ( \Exception $e ) { 
 			error_log( $e->getMessage() );
-			die( json_encode( [ 'error' => $e->getMessage() ] ) );   				
+			return false; 				
 		}
 		
-		$inserted_id = $insert_result->getInsertedId();
+		$inserted_id = $insert_result->getInsertedId();		
 		$user->set__id( $inserted_id );
+		return true;
 	}
 	
 	
