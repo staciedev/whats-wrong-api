@@ -21,7 +21,9 @@ class App
 		$protocol = $_SERVER['SERVER_PROTOCOL'];
 		$protocol = explode( '/', $protocol );
 		$protocol = $protocol[0];
-		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'] . '/' . self::$config::START_URL;
+		self::$complete_url = strtolower( $protocol ) . '://' . $_SERVER['HTTP_HOST'];
+		if( !empty( self::$config::START_URL ) ) 
+			self::$complete_url .= '/' . trim( self::$config::START_URL, '/' );
 		
 		// application base directory
 		self::$basedir = dirname(__FILE__).'/../..';

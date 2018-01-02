@@ -1,17 +1,21 @@
 <?php
 namespace Whatswrong\User;
 
+use Whatswrong\App;
+
 class Registration {	
 	
 	private $mapper;
 	private $user;
-	private $status; // operation status: REGISTERED|EMAIL_EXISTS|EMAIL_INVALID|PASSWORD_INVALID|TOKEN_NOT_GENERATED
+	private $status; // operation status: see codes below
 	
 	const REGISTERED = 1;
 	const EMAIL_EXISTS = 2;
 	const EMAIL_INVALID = 3;
 	const PASSWORD_INVALID = 4;
 	const TOKEN_NOT_GENERATED = 5;		
+	const EMAIL_NOT_SENT = 6;
+	const ENTRY_NOT_CREATED = 7;	
 	
 	
 	public function __construct() {
@@ -58,7 +62,17 @@ class Registration {
 		}
 		
 		$this->user->set_confirmation_token( $confirmation_token );
-		$this->mapper->create( $this->user );
+		
+		// TODO: uncomment this when live and test email sending
+		// if( !$this->send_confirmation_link() ) {
+		// 	$this->status = self::EMAIL_NOT_SENT;
+		// 	return;
+		// }
+		
+		if( !$this->mapper->create( $this->user ) ) {
+			$this->status = self::ENTRY_NOT_CREATED;
+			return;
+		}
 		
 		$this->status = self::REGISTERED;		
 		
@@ -123,6 +137,20 @@ class Registration {
 		
 		return $mb_token;
 	}	
+	
+	
+	public function send_confirmation_link(): bool
+	{
+		$email = $this->user->get_email();
+		$conf_token = $this->user->get_confirmation_token();
+		
+		if( $email && $conf_token ) {
+			$link = App::$complete_url . '/user/confirm/' . $conf_token;
+			$message = sprintf( "To confirm your email address please follow this link:\n%s", $link );			
+			return mail ( $email , 'Confirm your email on WhatsWrong project', $message );
+		}
+		return false;
+	}
 		
 	
 	public function get_user(): User 

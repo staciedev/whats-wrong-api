@@ -135,7 +135,23 @@ class ControllerUser extends Controller {
 					$result = [
 						'messageKey' => 'confirmationTokenNotCreated'
 						];
-					break;				
+					break;
+					
+				case Registration::EMAIL_NOT_SENT:	
+					header('HTTP/1.1 400 Failed to send email');
+					header("Status: 400 Failed to send email");
+					$result = [
+						'messageKey' => 'emailNotSent'
+						];
+					break;	
+					
+				case Registration::ENTRY_NOT_CREATED:		
+					header('HTTP/1.1 400 Failed to create database entry');
+					header("Status: 400 Failed to create database entry");
+					$result = [
+						'messageKey' => 'entryNotCreated'
+						];
+					break;	
 				
 			}
 			
