@@ -17,7 +17,7 @@ class DataMapper {
     foreach ( $parameters as $key => $value ) {			
     	$method = 'set_' . $key;			
       if ( method_exists( $instance, $method ) ) {				
-        $instance->{$method}( $value );
+        $instance->$method( $value );
       }
     }
   }
