@@ -49,7 +49,7 @@ class Authorization {
 	public function login_with_token( string $token )
 	{		
 		$this->user->populate_from_token( $token );			
-		error_log( print_r($this->user, true));
+		
 		// invalid token, user not set
 		if( !$this->user->get__id() ) {
 			$this->status = self::TOKEN_INVALID;			
