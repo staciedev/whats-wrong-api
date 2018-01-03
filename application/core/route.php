@@ -1,22 +1,35 @@
 <?php
 namespace Whatswrong;
 
+/*
+* This class defines site routes and loads app modules according to current route
+*/
 class Route {
 	
-	static function start()
+	// array of loaded modules
+	private static $modules = [];
+	
+	
+	// site routes
+	static function define_routes()
 	{
-		// default controller and action
-		$controller_name = '';
-		$action_name = '';	
-		
-		// TODO: make an array of modules?
-		
-		// site routes
+		// users
 		App::$router->map( 'POST', '/user/login', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'login' ), 'log_user_in' ); # authorize user	
 		App::$router->map( 'POST', '/user/token-test', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'test_token' ), 'test_user_token' ); # TODO: a test route, should be deleted
 		App::$router->map( 'POST', '/user/register', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'register' ), 'register_user' ); # register user
 		App::$router->map( 'POST', '/user/confirm/[a:conf_token]', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'confirm' ), 'confirm_email' ); # confirm user email 	
 		
+	}
+	
+	
+	static function start()
+	{
+		// default controller and action
+		$controller_name = '';
+		$action_name = '';		
+		
+		// get routes
+		self::define_routes();		
 		
 		$match = App::$router->match();
 		
@@ -28,16 +41,17 @@ class Route {
 		else {						
 			Route::error404();
 			return;
-		}
-		
+		}		
 		
 		// load all modules specified for this route 
 		if( !empty( $match['target']['m'] ) && is_array( $match['target']['m'] ) ) {
 			foreach ( $match['target']['m'] as $module ) {
-				App::load_module( $module );
+				self::load_module( $module );
 			}
 		}	
 		
+		// set logged user data if User module is loaded
+		if( self::is_module_loaded( 'user' ) ) self::init_auth();
 
 		// include controller file 
 		$controller_file = strtolower( 'controller-' . $controller_name ) . '.php';
@@ -68,6 +82,62 @@ class Route {
 			return;
 		}
 	
+	}
+	
+	
+	// includes all files in module folder recursively
+	private static function  _require_all( $dir, $depth = 0 ) 
+	{
+		$max_scan_depth = 10;
+  	if ( $depth > $max_scan_depth ) {
+    	return;
+	  }
+    // require all php files
+    $scan = glob( "$dir/*" );
+    foreach ( $scan as $path ) {
+      if ( preg_match( '/\.php$/', $path ) ) {
+        require_once $path;
+      }
+      elseif ( is_dir( $path ) ) {
+        self::_require_all( $path, $depth + 1 );
+      }
+  	}
+  }
+	
+	
+	// loads application module.
+	// One module is one folder in application/model
+	static function load_module( $module_name )
+	{
+		$module_dir = "application/model/" . $module_name;
+		
+		if( file_exists( $module_dir ) && is_dir( $module_dir ) ) {
+			self::_require_all( $module_dir );
+			self::$modules[] = $module_name;
+		}
+	}
+	
+	
+	// check if module is loaded
+	static function is_module_loaded( $module_name ): bool
+	{		
+		return in_array( $module_name, self::$modules );
+	}
+	
+	
+	// Authorization: setting logged user
+	static function init_auth()	
+	{
+		// get token from Authorization header
+		$headers = getallheaders();
+		
+		if( isset( $headers['Authorization'] ) ) {
+			$jwt = $headers['Authorization'];			
+			
+			App::$auth = new User\Authorization();
+			App::$auth->login_with_token( $jwt );
+		}		
+		
 	}
 	
 	
