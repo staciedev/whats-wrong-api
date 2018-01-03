@@ -1,0 +1,21 @@
+Collections
+  _________
+|   users   |
+| _________ |
+
+_id
+username?
+passwd (hash)
+confirmed
+role
+expert_in_domains
+last_active
+confirmation_token
+
+
+----------------------------------------------
+----------------------------------------------
+Creating the database (indexes and all this stuff)
+
+db.users.createIndex( {email:1}, {unique: true} )
+db.users.createIndex( { "confirmation_token": 1 }, { unique: true, sparse: true } )

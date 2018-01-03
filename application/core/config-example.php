@@ -18,5 +18,8 @@ class Config
 	// See https://www.sitepoint.com/php-authorization-jwt-json-web-tokens/
 	// Create a setup process and generate the secret key on setup
 	const JWT_SECRET_KEY = 'sSeZuXnO4IFhBt3ANMamvdL2+yTfD9ZBfLDJprlDrSvm1\/FO3iXw0WHIQ24BvSlyQiUz1b+qHafXTvK0NxG\/YA==';
+	
+	// user configurations
+	const LOGIN_AFTER_CONFIRMATION = true;
 		
 }
