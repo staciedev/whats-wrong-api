@@ -4,8 +4,14 @@ namespace Whatswrong;
 
 class Controller {
 	
-	// May hold some logic parsing user request.
-	// Or nothing, then it should be deleted.
+	function input_data_valid( array $input, array $accepted_keys ): bool
+	{		
+		foreach ( $input as $key => $value ) {
+			if( !in_array( $key, $accepted_keys ) ) return false;			
+		}
+		return true;
+	}
+	
 	
 	function send_response( string $status, array $response )
 	{
