@@ -60,4 +60,13 @@ class App
 		return self::$complete_url. '/content';
 	}
 	
+	
+	static function get_logged_user()
+	{
+		if( !empty( self::$auth ) )
+			return self::$auth->get_user();
+			
+		return null;
+	}
+	
 }
