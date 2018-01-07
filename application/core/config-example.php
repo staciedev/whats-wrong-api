@@ -6,7 +6,7 @@ class Config
 {	
 	// configurations
 	
-	const START_URL = '/whats-wrong-api';
+	const START_URL = '';
 	
 	const DB_NAME = 'whatswrong';
 	
