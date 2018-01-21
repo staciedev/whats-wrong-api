@@ -19,6 +19,8 @@ class Route {
 		App::$router->map( 'POST', '/user/register', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'register' ), 'register_user' ); # register user
 		App::$router->map( 'POST', '/user/confirm/[a:conf_token]', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'confirm' ), 'confirm_email' ); # confirm user email 	
 		
+		// issues
+		App::$router->map( 'POST', '/issue/create', array( 'm' => [ 'user', 'issue' ], 'c' => 'issue', 'a' => 'create' ), 'create_issue' ); # create issue
 	}
 	
 	
