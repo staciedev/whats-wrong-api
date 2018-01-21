@@ -55,9 +55,9 @@ class Route {
 
 		// include controller file 
 		$controller_file = strtolower( 'controller-' . $controller_name ) . '.php';
-		$controller_path = "application/controllers/" . $controller_file;
+		$controller_path = dirname( __FILE__ ) . "/../controllers/" . $controller_file;
 		if ( file_exists( $controller_path ) ) {
-			include "application/controllers/" . $controller_file;
+			include $controller_path;
 		}
 		else {
 						
@@ -109,7 +109,7 @@ class Route {
 	// One module is one folder in application/model
 	static function load_module( $module_name )
 	{
-		$module_dir = "application/model/" . $module_name;
+		$module_dir = dirname( __FILE__ ) . "/../model/" . $module_name;
 		
 		if( file_exists( $module_dir ) && is_dir( $module_dir ) ) {
 			self::_require_all( $module_dir );
