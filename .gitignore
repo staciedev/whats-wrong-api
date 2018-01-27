@@ -1,5 +1,10 @@
-vendor
-content
-debug.log
-test_imgs
-application/core/config.php
+*.exe
+*.exe~
+*.orig
+*.test
+.*.swp
+.DS_Store
+.idea/
+nbproject/
+/nbproject/private/
+.vscode/
