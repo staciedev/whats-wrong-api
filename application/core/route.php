@@ -87,26 +87,6 @@ class Route {
 	}
 	
 	
-	// includes all files in module folder recursively
-	private static function  _require_all( $dir, $depth = 0 ) 
-	{
-		$max_scan_depth = 10;
-  	if ( $depth > $max_scan_depth ) {
-    	return;
-	  }
-    // require all php files
-    $scan = glob( "$dir/*" );
-    foreach ( $scan as $path ) {
-      if ( preg_match( '/\.php$/', $path ) ) {
-        require_once $path;
-      }
-      elseif ( is_dir( $path ) ) {
-        self::_require_all( $path, $depth + 1 );
-      }
-  	}
-  }
-	
-	
 	// loads application module.
 	// One module is one folder in application/model
 	static function load_module( $module_name )
@@ -114,7 +94,7 @@ class Route {
 		$module_dir = dirname( __FILE__ ) . "/../model/" . $module_name;
 		
 		if( file_exists( $module_dir ) && is_dir( $module_dir ) ) {
-			self::_require_all( $module_dir );
+			require_all( $module_dir );
 			self::$modules[] = $module_name;
 		}
 	}

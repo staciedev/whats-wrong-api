@@ -2,8 +2,10 @@
 
 namespace Whatswrong;
 
-// Require base classes
+// Require helper functions 
+require_once 'core/helpers.php';
 
+// Require base classes
 require_once 'core/controller.php';
 require_once 'core/route.php';
 require_once 'core/config.php';
