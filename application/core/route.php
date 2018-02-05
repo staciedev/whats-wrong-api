@@ -17,7 +17,7 @@ class Route {
 		App::$router->map( 'POST', '/user/login', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'login' ), 'log_user_in' ); # authorize user	
 		App::$router->map( 'POST', '/user/token-test', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'test_token' ), 'test_user_token' ); # TODO: a test route, should be deleted
 		App::$router->map( 'POST', '/user/register', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'register' ), 'register_user' ); # register user
-		App::$router->map( 'POST', '/user/confirm/[a:conf_token]', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'confirm' ), 'confirm_email' ); # confirm user email 	
+		App::$router->map( 'GET', '/user/confirm/[a:conf_token]', array( 'm' => [ 'user' ], 'c' => 'user', 'a' => 'confirm' ), 'confirm_email' ); # confirm user email 	
 		
 		// issues
 		App::$router->map( 'POST', '/issue/create', array( 'm' => [ 'user', 'issue' ], 'c' => 'issue', 'a' => 'create' ), 'create_issue' ); # create issue
